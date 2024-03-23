@@ -1,7 +1,13 @@
 # AWS region of the S3 bucket
-region			 = us-east-1
+region := $(AWS_REGION)
+
+ifeq ($(region),)
+$(error AWS_REGION is not set)
+endif
+
 # S3 bucket where Terraform stores its state data
 s3bucket         = terraform-healthstats
+
 # State file name in S3 bucket
 statefile        = "terraform.tfstate"
 # Contains the changes to be applied to AWS infra (hence, 'plan')
