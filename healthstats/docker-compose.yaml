@@ -1,0 +1,25 @@
+version: "3"
+services:
+  db:
+    container_name: healthstats-db
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-healthstats}
+    ports:
+      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+  migrate:
+    container_name: healthstats-migrate
+    build:
+      context: ./server
+      dockerfile: ./docker/migrate.Dockerfile
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-healthstats}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_HOST: healthstats-db
+      MIGRATE_COMMAND: ${MIGRATE_COMMAND:-up}
+    depends_on:
+      - db
