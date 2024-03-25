@@ -20,7 +20,6 @@ func NewRouter(service *services.Service) *http.ServeMux {
 }
 
 func (r *router) setupRoutes() {
-
 	fileHandler := handlers.NewFileHandler(r.service)
 	fileHandler.InitRoutes(r.router)
 

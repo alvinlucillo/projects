@@ -40,6 +40,11 @@ type Env struct {
 	AWSAccessKey         string `env:"AWS_ACCESS_KEY"`
 	AWSSecretAccessKey   string `env:"AWS_SECRET_ACCESS_KEY"`
 	AWSS3FilesBucketName string `env:"AWS_S3_FILES_BUCKET_NAME"`
+	DBHost               string `env:"DB_HOST"`
+	DBPort               string `env:"DB_PORT"`
+	DBUser               string `env:"DB_USER"`
+	DBPassword           string `env:"DB_PASSWORD"`
+	DBName               string `env:"DB_NAME"`
 }
 
 func checkRequiredEnvVars() Env {
