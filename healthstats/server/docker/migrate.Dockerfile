@@ -3,11 +3,11 @@ FROM golang:1.21
 
 WORKDIR /migrations
 
-ARG POSTGRES_USER
-ARG POSTGRES_PASSWORD
-ARG POSTGRES_DB
-ARG POSTGRES_PORT
-ARG POSTGRES_HOST
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_NAME
+ARG DB_PORT
+ARG DB_HOST
 
 # Install Dockerize
 ENV DOCKERIZE_VERSION v0.6.1
@@ -17,6 +17,9 @@ RUN curl -OL https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_V
 
 # Install migrate tool
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+# Install telnet and netcat
+RUN apt-get update && apt-get install -y telnet netcat-openbsd
 
 # Copy migration files and script
 COPY ./database/migrations ./files

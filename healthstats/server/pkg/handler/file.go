@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"healthstats/pkg/middleware"
 	"healthstats/pkg/service"
 	"net/http"
 )
@@ -44,6 +45,8 @@ func (h *handler) UploadFile(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// tx := req.Context().Value("tx").(*sql.Tx)
+
 	fmt.Printf("%#v\n", result)
 
 	// You can now use the file, for example, save it to disk.
@@ -52,5 +55,5 @@ func (h *handler) UploadFile(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *handler) InitRoutes(router *http.ServeMux) {
-	router.HandleFunc("POST /upload", h.UploadFile)
+	router.HandleFunc("POST /upload", middleware.TransactionMiddleware(h.service, h.UploadFile))
 }

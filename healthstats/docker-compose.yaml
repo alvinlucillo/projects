@@ -4,22 +4,30 @@ services:
     container_name: healthstats-db
     image: postgres:9.6
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-healthstats}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-healthstats}
     ports:
-      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+      - "${DB_PORT:-5432}:${DB_PORT:-5432}"
+    networks:
+      - healthstats-network
   migrate:
     container_name: healthstats-migrate
     build:
       context: ./server
       dockerfile: ./docker/migrate.Dockerfile
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-healthstats}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_HOST: healthstats-db
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-healthstats}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_HOST: db
       MIGRATE_COMMAND: ${MIGRATE_COMMAND:-up}
     depends_on:
       - db
+    networks:
+      - healthstats-network
+
+networks:
+  healthstats-network:
+    driver: bridge

@@ -23,6 +23,11 @@ func main() {
 		AWSSecretAccessKey:   env.AWSSecretAccessKey,
 		Logger:               logger,
 		AWSS3FilesBucketName: env.AWSS3FilesBucketName,
+		DBHost:               env.DBHost,
+		DBPort:               env.DBPort,
+		DBUser:               env.DBUser,
+		DBPassword:           env.DBPassword,
+		DBName:               env.DBName,
 	})
 
 	if err != nil {
