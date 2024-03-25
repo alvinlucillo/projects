@@ -2,7 +2,7 @@ package main
 
 import (
 	"healthstats/pkg/router"
-	"healthstats/pkg/services"
+	"healthstats/pkg/service"
 	"net/http"
 	"os"
 	"reflect"
@@ -16,7 +16,7 @@ func main() {
 	env := checkRequiredEnvVars()
 
 	l := logger.With().Str("package", "main").Str("function", "main").Logger()
-	service, err := services.NewService(services.ServiceConfig{
+	svc, err := service.NewService(service.ServiceConfig{
 		AWSRegion:            env.AWSRegion,
 		AWSS3RoleArn:         env.AWSS3RoleArn,
 		AWSAccessKey:         env.AWSAccessKey,
@@ -30,7 +30,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := router.NewRouter(service)
+	r := router.NewRouter(svc)
 	http.ListenAndServe(":9000", r)
 }
 

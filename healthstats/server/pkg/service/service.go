@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	packageName = "services"
+	packageName = "service"
 )
 
 type ServiceConfig struct {

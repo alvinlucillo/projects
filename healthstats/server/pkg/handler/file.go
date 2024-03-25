@@ -1,20 +1,20 @@
-package handlers
+package handler
 
 import (
 	"fmt"
-	"healthstats/pkg/services"
+	"healthstats/pkg/service"
 	"net/http"
 )
 
 const (
-	packageName = "handlers"
+	packageName = "handler"
 )
 
 type handler struct {
-	service *services.Service
+	service *service.Service
 }
 
-func NewFileHandler(service *services.Service) *handler {
+func NewFileHandler(service *service.Service) *handler {
 	return &handler{service: service}
 }
 

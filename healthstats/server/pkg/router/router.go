@@ -1,17 +1,17 @@
 package router
 
 import (
-	"healthstats/pkg/handlers"
-	"healthstats/pkg/services"
+	"healthstats/pkg/handler"
+	"healthstats/pkg/service"
 	"net/http"
 )
 
 type router struct {
 	router  *http.ServeMux
-	service *services.Service
+	service *service.Service
 }
 
-func NewRouter(service *services.Service) *http.ServeMux {
+func NewRouter(service *service.Service) *http.ServeMux {
 	r := &router{router: http.NewServeMux(), service: service}
 
 	r.setupRoutes()
@@ -20,7 +20,7 @@ func NewRouter(service *services.Service) *http.ServeMux {
 }
 
 func (r *router) setupRoutes() {
-	fileHandler := handlers.NewFileHandler(r.service)
+	fileHandler := handler.NewFileHandler(r.service)
 	fileHandler.InitRoutes(r.router)
 
 	// r.router.HandleFunc("POST /upload", func(w http.ResponseWriter, req *http.Request) {
