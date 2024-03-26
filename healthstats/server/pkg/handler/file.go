@@ -1,10 +1,16 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"healthstats/pkg/middleware"
+	"healthstats/pkg/model"
+	"healthstats/pkg/repo"
 	"healthstats/pkg/service"
 	"net/http"
+	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -38,20 +44,72 @@ func (h *handler) UploadFile(w http.ResponseWriter, req *http.Request) {
 	}
 	defer file.Close()
 
-	result, err := h.service.S3Service.UploadFile(handler.Filename, file)
+	tx := req.Context().Value("tx").(*sqlx.Tx)
+	rqRepo := repo.NewRequestRepo(tx, h.service.Logger)
+
+	newRequest := model.Request{
+		FileName: handler.Filename,
+		Status:   model.RequestStatusPending,
+	}
+
+	id, err := rqRepo.CreateRequest(newRequest)
 	if err != nil {
-		l.Err(err).Msg("Error uploading file")
+		l.Err(err).Msg("Error creating request")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// tx := req.Context().Value("tx").(*sql.Tx)
+	fmt.Printf("ID: %s\n", id)
 
-	fmt.Printf("%#v\n", result)
+	go func() {
+		newRequest.ID = id
+		newRequest.Status = model.RequestStatusSuccess
+
+		// time.Sleep(5 * time.Second)
+
+		_, err := h.service.S3Service.UploadFile(handler.Filename, file)
+		if err != nil {
+			l.Err(err).Msg("Error uploading file")
+
+			newRequest.Status = model.RequestStatusFailed
+
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Println("File uploaded")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+
+		tx, err := h.service.DB.BeginTxx(ctx, nil)
+		if err != nil {
+			l.Err(err).Msg("Error starting transaction")
+			return
+		}
+
+		rqRepo := repo.NewRequestRepo(tx, h.service.Logger)
+
+		err = rqRepo.UpdateRequest(newRequest)
+		if err != nil {
+			l.Err(err).Msg("Error updating request")
+			// http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			l.Err(err).Msg("Error committing transaction")
+			return
+		}
+
+		// fmt.Printf("%#v\n", result)
+	}()
 
 	// You can now use the file, for example, save it to disk.
 	// For now, let's just respond with the name of the file.
-	w.Write([]byte(fmt.Sprintf("Successfully uploaded file: %s", handler.Filename)))
+	fmt.Println("Waiting for file to be uploaded. For now, sending response")
+	w.Write([]byte(id))
 }
 
 func (h *handler) InitRoutes(router *http.ServeMux) {

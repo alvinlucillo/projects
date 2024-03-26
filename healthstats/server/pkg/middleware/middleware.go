@@ -9,7 +9,7 @@ import (
 func TransactionMiddleware(svc *service.Service, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Start a new DB transaction
-		tx, err := svc.DB.BeginTx(r.Context(), nil)
+		tx, err := svc.DB.BeginTxx(r.Context(), nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -20,5 +20,11 @@ func TransactionMiddleware(svc *service.Service, next http.HandlerFunc) http.Han
 
 		// Call the next handler with the updated request
 		next.ServeHTTP(w, r.WithContext(ctx))
+
+		// commit the transaction
+		if err := tx.Commit(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }

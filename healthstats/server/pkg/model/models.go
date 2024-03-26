@@ -15,3 +15,9 @@ type Dates struct {
 	UpdatedAt string         `db:"updated_at"`
 	DeletedAt sql.NullString `db:"deleted_at"`
 }
+
+const (
+	RequestStatusPending = "pending"
+	RequestStatusSuccess = "success"
+	RequestStatusFailed  = "failed"
+)

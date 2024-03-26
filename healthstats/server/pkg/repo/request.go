@@ -1,14 +1,15 @@
-package repos
+package repo
 
 import (
-	"healthstats/pkg/models"
+	"healthstats/pkg/model"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
 )
 
 type RequestRepo interface {
-	CreateRequest(request models.Request) (string, error)
+	CreateRequest(request model.Request) (string, error)
+	UpdateRequest(request model.Request) error
 }
 
 type requestRepo struct {
@@ -23,15 +24,30 @@ func NewRequestRepo(tx *sqlx.Tx, logger zerolog.Logger) RequestRepo {
 	}
 }
 
-func (r *requestRepo) CreateRequest(request models.Request) (string, error) {
+func (r *requestRepo) CreateRequest(request model.Request) (string, error) {
 	l := r.logger.With().Str("package", packageName).Str("function", "CreateRequest").Logger()
 
-	query := `INSERT INTO requests (file_name, status) VALUES ($1, $2)`
-	_, err := r.tx.Exec(query, request.FileName, request.Status)
+	query := `INSERT INTO request (file_name, status) VALUES ($1, $2) RETURNING id;`
+
+	var id string
+	err := r.tx.QueryRow(query, request.FileName, request.Status).Scan(&id)
 	if err != nil {
 		l.Err(err).Msg("failed to insert request")
 		return "", err
 	}
 
-	return request.ID, nil
+	return id, nil
+}
+
+func (r *requestRepo) UpdateRequest(request model.Request) error {
+	l := r.logger.With().Str("package", packageName).Str("function", "UpdateRequest").Logger()
+
+	query := `UPDATE request SET status = $1, file_name = $2, updated_at = NOW() WHERE id = $3;`
+	_, err := r.tx.Exec(query, request.Status, request.FileName, request.ID)
+	if err != nil {
+		l.Err(err).Msg("failed to update request")
+		return err
+	}
+
+	return nil
 }

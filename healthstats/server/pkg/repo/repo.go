@@ -1,4 +1,4 @@
-package repos
+package repo
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	packageName = "repos"
+	packageName = "repo"
 )
 
 type Repository struct {
