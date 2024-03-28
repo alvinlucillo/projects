@@ -3,9 +3,9 @@ package main
 import (
 	"healthstats/pkg/router"
 	"healthstats/pkg/service"
+	"healthstats/pkg/util"
 	"net/http"
 	"os"
-	"reflect"
 
 	"github.com/rs/zerolog"
 )
@@ -13,7 +13,9 @@ import (
 func main() {
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
 
-	env := checkRequiredEnvVars()
+	env := &Env{}
+
+	env = util.CheckRequiredEnvVars(env).(*Env)
 
 	l := logger.With().Str("package", "main").Str("function", "main").Logger()
 	svc, err := service.NewService(service.ServiceConfig{
@@ -52,23 +54,23 @@ type Env struct {
 	DBName               string `env:"DB_NAME"`
 }
 
-func checkRequiredEnvVars() Env {
-	env := Env{}
+// func checkRequiredEnvVars() Env {
+// 	env := Env{}
 
-	// pass address of env struct to reflect.ValueOf
-	v := reflect.ValueOf(&env).Elem()
+// 	// pass address of env struct to reflect.ValueOf
+// 	v := reflect.ValueOf(&env).Elem()
 
-	for i := 0; i < v.NumField(); i++ {
-		envVar := v.Type().Field(i).Tag.Get("env")
-		envVarValue := os.Getenv(envVar)
+// 	for i := 0; i < v.NumField(); i++ {
+// 		envVar := v.Type().Field(i).Tag.Get("env")
+// 		envVarValue := os.Getenv(envVar)
 
-		if envVarValue == "" {
-			panic("Missing required environment variable: " + envVar)
-		}
+// 		if envVarValue == "" {
+// 			panic("Missing required environment variable: " + envVar)
+// 		}
 
-		// set the value from the environment variable to the struct field
-		v.Field(i).SetString(envVarValue)
-	}
+// 		// set the value from the environment variable to the struct field
+// 		v.Field(i).SetString(envVarValue)
+// 	}
 
-	return env
-}
+// 	return env
+// }
