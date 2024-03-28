@@ -17,7 +17,8 @@ type Dates struct {
 }
 
 const (
-	RequestStatusPending = "pending"
-	RequestStatusSuccess = "success"
-	RequestStatusFailed  = "failed"
+	RequestStatusPending  = "pending"
+	RequestStatusComplete = "complete"
+	RequestStatusQueued   = "queued"
+	RequestStatusFailed   = "failed"
 )

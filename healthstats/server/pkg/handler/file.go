@@ -63,21 +63,19 @@ func (h *handler) UploadFile(w http.ResponseWriter, req *http.Request) {
 
 	go func() {
 		newRequest.ID = id
-		newRequest.Status = model.RequestStatusSuccess
+		newRequest.Status = model.RequestStatusQueued
 
-		// time.Sleep(5 * time.Second)
+		time.Sleep(5 * time.Second)
 
-		_, err := h.service.S3Service.UploadFile(handler.Filename, file)
-		if err != nil {
-			l.Err(err).Msg("Error uploading file")
+		// _, err := h.service.S3Service.UploadFile(handler.Filename, file)
+		// if err != nil {
+		// 	l.Err(err).Msg("Error uploading file")
 
-			newRequest.Status = model.RequestStatusFailed
+		// 	newRequest.Status = model.RequestStatusFailed
 
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Println("File uploaded")
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
@@ -93,7 +91,6 @@ func (h *handler) UploadFile(w http.ResponseWriter, req *http.Request) {
 		err = rqRepo.UpdateRequest(newRequest)
 		if err != nil {
 			l.Err(err).Msg("Error updating request")
-			// http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
